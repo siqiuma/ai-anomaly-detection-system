@@ -9,9 +9,11 @@ import org.springframework.stereotype.Service;
 public class TransactionIngestionService {
 
     private final TransactionRepository transactionRepository;
+    private final AnomalyDetectionService anomalyDetectionService;
 
-    public TransactionIngestionService(TransactionRepository transactionRepository) {
+    public TransactionIngestionService(TransactionRepository transactionRepository, AnomalyDetectionService anomalyDetectionService) {
         this.transactionRepository = transactionRepository;
+        this.anomalyDetectionService = anomalyDetectionService;
     }
 
     public void ingest(TransactionEvent event) {
@@ -33,8 +35,13 @@ public class TransactionIngestionService {
         transaction.setTransactionType(event.getTransactionType());
         transaction.setEventTime(event.getEventTime());
 
-        transactionRepository.save(transaction);
+        Transaction savedTransaction = transactionRepository.save(transaction);
 
         System.out.println("Saved transaction from Kafka: " + event.getTransactionId());
+
+        anomalyDetectionService.evaluateAndSave(savedTransaction);
+
+        System.out.println("Saved anomaly result for transaction: " + event.getTransactionId());
+
     }
 }
