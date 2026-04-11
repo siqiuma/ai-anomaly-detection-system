@@ -23,8 +23,8 @@ public class AnomalyResult {
     @Column(name = "is_flagged", nullable = false)
     private Boolean flagged;
 
-    @Column(name = "matched_rule", nullable = false)
-    private String matchedRule;
+    @Column(name = "matched_rules", nullable = false)
+    private String matchedRules;
 
     @Column(name = "detected_at", nullable = false)
     private Instant detectedAt;
@@ -49,9 +49,7 @@ public class AnomalyResult {
         return flagged;
     }
 
-    public String getMatchedRule() {
-        return matchedRule;
-    }
+    public String getMatchedRules() { return matchedRules; }
 
     public Instant getDetectedAt() {
         return detectedAt;

@@ -26,15 +26,24 @@ public class AnomalyDetectionService {
         result.setTransactionId(transaction.getTransactionId());
         result.setAnomalyScore(engineResult.getTotalScore());
 
-        if (engineResult.getTotalScore() >= 80) {
+        int score = engineResult.getTotalScore();
+
+        if (score >= 80) {
             result.setRiskLevel("HIGH");
+            result.setFlagged(true);
+        } else if (score > 0) {
+            result.setRiskLevel("MEDIUM");
             result.setFlagged(true);
         } else {
             result.setRiskLevel("LOW");
             result.setFlagged(false);
         }
 
-        result.setMatchedRule(engineResult.getMatchedRule());
+        String matchedRules = engineResult.getMatchedRules().isEmpty()
+                ? "NONE"
+                : String.join(",", engineResult.getMatchedRules());
+
+        result.setMatchedRules(matchedRules);
 
         anomalyResultRepository.save(result);
     }

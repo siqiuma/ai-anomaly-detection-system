@@ -3,6 +3,7 @@ package com.siqiuma.detection_service.rule;
 import com.siqiuma.detection_service.model.Transaction;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -17,17 +18,17 @@ public class DetectionRuleEngine {
     public RuleEngineResult evaluate(Transaction transaction) {
 
         int totalScore = 0;
-        String matchedRule = "NONE";
+        List<String> matchedRules = new ArrayList<>();
 
         for (DetectionRule rule : rules) {
             RuleEvaluationResult result = rule.evaluate(transaction);
 
             if (result.isTriggered()) {
                 totalScore += result.getScore();
-                matchedRule = result.getRuleName();
+                matchedRules.add(result.getRuleName());
             }
         }
 
-        return new RuleEngineResult(totalScore, matchedRule);
+        return new RuleEngineResult(totalScore, matchedRules);
     }
 }

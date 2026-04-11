@@ -1,20 +1,21 @@
 package com.siqiuma.detection_service.rule;
+import java.util.List;
 
 public class RuleEngineResult {
 
     private final int totalScore;
-    private final String matchedRule;
+    private final List<String> matchedRules;
 
-    public RuleEngineResult(int totalScore, String matchedRule) {
+    public RuleEngineResult(int totalScore, List<String> matchedRules) {
         this.totalScore = totalScore;
-        this.matchedRule = matchedRule;
+        this.matchedRules = matchedRules;
     }
 
     public int getTotalScore() {
         return totalScore;
     }
 
-    public String getMatchedRule() {
-        return matchedRule;
+    public List<String> getMatchedRules() {
+        return matchedRules;
     }
 }
