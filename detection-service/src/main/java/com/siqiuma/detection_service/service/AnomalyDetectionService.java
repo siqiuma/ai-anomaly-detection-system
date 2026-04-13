@@ -1,7 +1,9 @@
 package com.siqiuma.detection_service.service;
 
 import com.siqiuma.detection_service.model.AnomalyResult;
+import com.siqiuma.detection_service.model.ExplanationRequestEvent;
 import com.siqiuma.detection_service.model.Transaction;
+import com.siqiuma.detection_service.publisher.ExplanationRequestPublisher;
 import com.siqiuma.detection_service.repository.AnomalyResultRepository;
 import com.siqiuma.detection_service.rule.DetectionRuleEngine;
 import com.siqiuma.detection_service.rule.RuleEngineResult;
@@ -13,13 +15,13 @@ public class AnomalyDetectionService {
 
     private final AnomalyResultRepository anomalyResultRepository;
     private final DetectionRuleEngine ruleEngine;
-    private final ExplanationService explanationService;
+    private final ExplanationRequestPublisher explanationRequestPublisher;
 
 
-    public AnomalyDetectionService(AnomalyResultRepository anomalyResultRepository, DetectionRuleEngine ruleEngine, ExplanationService explanationService) {
+    public AnomalyDetectionService(AnomalyResultRepository anomalyResultRepository, DetectionRuleEngine ruleEngine, ExplanationRequestPublisher explanationRequestPublisher) {
         this.anomalyResultRepository = anomalyResultRepository;
         this.ruleEngine = ruleEngine;
-        this.explanationService = explanationService;
+        this.explanationRequestPublisher = explanationRequestPublisher;
     }
 
     public void evaluateAndSave(Transaction transaction) {
@@ -52,6 +54,9 @@ public class AnomalyDetectionService {
 
         anomalyResultRepository.save(result);
 
-        explanationService.generateAndSave(transaction, matchedRulesList);
-    }
+        ExplanationRequestEvent event = new ExplanationRequestEvent();
+        event.setTransactionId(transaction.getTransactionId());
+        event.setMatchedRules(matchedRulesList);
+
+        explanationRequestPublisher.publish(event);    }
 }

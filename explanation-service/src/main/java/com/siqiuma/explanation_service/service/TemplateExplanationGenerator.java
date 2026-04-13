@@ -1,25 +1,15 @@
-package com.siqiuma.detection_service.service;
+package com.siqiuma.explanation_service.service;
 
-import com.siqiuma.detection_service.model.AnomalyExplanation;
-import com.siqiuma.detection_service.model.Transaction;
-import com.siqiuma.detection_service.repository.AnomalyExplanationRepository;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-//@Service
-public class ExplanationService {
+@Component
+public class TemplateExplanationGenerator {
 
-    private final AnomalyExplanationRepository repository;
-
-    public ExplanationService(AnomalyExplanationRepository repository) {
-        this.repository = repository;
-    }
-
-    public void generateAndSave(Transaction transaction, List<String> matchedRules) {
+    public String generate(List<String> matchedRules) {
 
         StringBuilder explanation = new StringBuilder();
-
         explanation.append("This transaction is evaluated based on the following factors:\n");
 
         if (matchedRules == null || matchedRules.isEmpty()) {
@@ -34,15 +24,12 @@ public class ExplanationService {
                         explanation.append("- The transaction originates from a high-risk country\n");
                         break;
                     default:
+                        explanation.append("- Triggered rule: ").append(rule).append("\n");
                         break;
                 }
             }
         }
 
-        AnomalyExplanation entity = new AnomalyExplanation();
-        entity.setTransactionId(transaction.getTransactionId());
-        entity.setExplanationText(explanation.toString());
-
-        repository.save(entity);
+        return explanation.toString();
     }
 }

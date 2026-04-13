@@ -1,4 +1,4 @@
-package com.siqiuma.api_service.model;
+package com.siqiuma.explanation_service.model;
 
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -61,7 +61,15 @@ public class AnomalyExplanation {
         return generationMethod;
     }
 
+    public void setGenerationMethod(String generationMethod) {
+        this.generationMethod = generationMethod;
+    }
+
     public String getModelName() {
         return modelName;
+    }
+
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
     }
 }
