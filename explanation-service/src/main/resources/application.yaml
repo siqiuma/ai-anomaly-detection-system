@@ -27,7 +27,6 @@ spring:
         spring.json.use.type.headers: false
 llm:
   provider: openai
-  api-key:
   endpoint: https://api.openai.com/v1/chat/completions
   model: gpt-4o-mini
   timeout-ms: 5000
