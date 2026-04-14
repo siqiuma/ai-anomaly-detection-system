@@ -25,6 +25,12 @@ spring:
         spring.json.trusted.packages: com.siqiuma.explanation_service.model
         spring.json.value.default.type: com.siqiuma.explanation_service.model.ExplanationRequestEvent
         spring.json.use.type.headers: false
+llm:
+  provider: openai
+  api-key:
+  endpoint: https://api.openai.com/v1/chat/completions
+  model: gpt-4o-mini
+  timeout-ms: 5000
 
 server:
   port: 8082

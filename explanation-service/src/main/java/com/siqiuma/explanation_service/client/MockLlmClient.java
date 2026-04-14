@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.StringJoiner;
 
-@Component
+//@Component
 public class MockLlmClient implements LlmClient {
 
     @Override

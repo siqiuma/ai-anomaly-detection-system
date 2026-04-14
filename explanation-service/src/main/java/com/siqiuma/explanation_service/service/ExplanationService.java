@@ -33,6 +33,9 @@ public class ExplanationService {
             generationMethod = "LLM";
             modelName = llmClient.getModelName();
         } catch (Exception e) {
+            System.err.println("LLM generation failed: " + e.getMessage());
+            e.printStackTrace();
+
             explanationText = templateExplanationGenerator.generate(matchedRules);
             generationMethod = "TEMPLATE";
             modelName = "fallback-template";
