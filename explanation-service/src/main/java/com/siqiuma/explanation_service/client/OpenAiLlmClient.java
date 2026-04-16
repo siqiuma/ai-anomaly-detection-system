@@ -3,6 +3,7 @@ package com.siqiuma.explanation_service.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.siqiuma.explanation_service.config.LlmConfig;
+import com.siqiuma.explanation_service.dto.ExplanationResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.http.MediaType;
@@ -86,6 +87,8 @@ public class OpenAiLlmClient implements LlmClient {
 
     private String buildPrompt(String transactionId, List<String> rules) {
         StringBuilder sb = new StringBuilder();
+
+        sb.append("You are a financial risk analyst.\n\n");
         sb.append("Transaction ID: ").append(transactionId).append("\n");
         sb.append("Triggered Rules:\n");
 
@@ -97,17 +100,62 @@ public class OpenAiLlmClient implements LlmClient {
             }
         }
 
-        sb.append("\nExplain in 2-3 sentences why this transaction may be risky.");
+        sb.append("\nInstructions:\n");
+        sb.append("- Only explain based on the provided rules\n");
+        sb.append("- Do NOT assume facts not given\n");
+        sb.append("- Be concise and professional\n");
+
+        sb.append("\nOutput JSON in this format:\n");
+        sb.append("{\n");
+        sb.append("  \"risk_summary\": \"...\",\n");
+        sb.append("  \"reasons\": [\"...\", \"...\"]\n");
+        sb.append("}\n");
+
         return sb.toString();
     }
 
     private String extractContent(String json) throws Exception {
         JsonNode root = objectMapper.readTree(json);
-        return root.path("choices")
+        String content = root.path("choices")
                 .get(0)
                 .path("message")
                 .path("content")
                 .asText();
+
+        try {
+            ExplanationResponse response = objectMapper.readValue(content, ExplanationResponse.class);
+
+            StringBuilder formatted = new StringBuilder();
+            formatted.append(response.getRisk_summary()).append("\n");
+
+            for (String reason : response.getReasons()) {
+                formatted.append("- ").append(reason).append("\n");
+            }
+
+            return sanitize(formatted.toString());
+
+        } catch (Exception e) {
+            // fallback if AI didn't return valid JSON
+            return content;
+        }
+    }
+
+    private String sanitize(String text) {
+        if (text == null) return "";
+
+        String lower = text.toLowerCase();
+
+        if (lower.contains("money laundering") ||
+                lower.contains("fraud") ||
+                lower.contains("compliance") ||
+                lower.contains("regulatory")) {
+
+            return "Explanation constrained: based on triggered rules only.\n" +
+                    "- The transaction amount exceeds threshold.\n" +
+                    "- The transaction involves a high-risk country.";
+        }
+
+        return text;
     }
 
     @Override
