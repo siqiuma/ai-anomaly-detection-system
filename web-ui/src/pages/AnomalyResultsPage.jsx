@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchAnomalyResults } from "../api/client";
 import TableView from "../components/TableView";
+import RiskBadge from "../components/RiskBadge";
 
 export default function AnomalyResultsPage() {
   const [results, setResults] = useState([]);
@@ -17,7 +18,7 @@ export default function AnomalyResultsPage() {
   const columns = [
     { key: "transactionId", label: "Transaction ID" },
     { key: "anomalyScore", label: "Score" },
-    { key: "riskLevel", label: "Risk Level" },
+    { key: "riskLevel", label: "Risk Level", render: (value) => <RiskBadge level={value} /> },
     {
       key: "flagged",
       label: "Flagged",

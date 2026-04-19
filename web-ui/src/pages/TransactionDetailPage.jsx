@@ -5,6 +5,7 @@ import {
   fetchAnomalyResultById,
   fetchExplanations,
 } from "../api/client";
+import RiskBadge from "../components/RiskBadge";
 
 export default function TransactionDetailPage() {
   const { transactionId } = useParams();
@@ -76,7 +77,9 @@ export default function TransactionDetailPage() {
               anomalyResults.map((result) => (
                 <div key={result.id} className="detail-grid">
                   <div><strong>Score:</strong> {result.anomalyScore}</div>
-                  <div><strong>Risk Level:</strong> {result.riskLevel}</div>
+                  <div>
+                    <strong>Risk Level:</strong> <RiskBadge level={result.riskLevel} />
+                  </div>
                   <div><strong>Flagged:</strong> {result.flagged ? "Yes" : "No"}</div>
                   <div><strong>Matched Rules:</strong> {result.matchedRules}</div>
                   <div><strong>Detected At:</strong> {result.detectedAt}</div>

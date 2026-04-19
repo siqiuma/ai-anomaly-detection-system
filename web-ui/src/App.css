@@ -105,3 +105,74 @@ body {
   white-space: pre-wrap;
   font-family: inherit;
 }
+
+.risk-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.risk-high {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.risk-medium {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.risk-low {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.risk-unknown {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  background: white;
+  border-radius: 10px;
+  padding: 18px;
+  border: 1px solid #ddd;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.summary-card.high {
+  border-left: 6px solid #b91c1c;
+}
+
+.summary-card.medium {
+  border-left: 6px solid #c2410c;
+}
+
+.summary-card.low {
+  border-left: 6px solid #15803d;
+}
+
+.summary-card.total {
+  border-left: 6px solid #1f2937;
+}
+
+.summary-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.summary-value {
+  font-size: 28px;
+  font-weight: 700;
+}
