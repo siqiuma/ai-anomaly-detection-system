@@ -6,6 +6,7 @@ export default function Navbar() {
       <h2 className="logo">AI Anomaly Detection Dashboard</h2>
       <div className="nav-links">
         <Link to="/">Transactions</Link>
+        <Link to="/new-transaction">New Transaction</Link>
         <Link to="/anomaly-results">Anomaly Results</Link>
         <Link to="/explanations">Explanations</Link>
       </div>

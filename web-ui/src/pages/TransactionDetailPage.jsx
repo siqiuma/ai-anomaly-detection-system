@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import {
-  fetchTransactionById,
-  fetchAnomalyResultById,
-  fetchExplanations,
-} from "../api/client";
+import { fetchTransactionFullView } from "../api/client";
 import RiskBadge from "../components/RiskBadge";
+import ProcessingTimeline from "../components/ProcessingTimeline";
 
 export default function TransactionDetailPage() {
   const { transactionId } = useParams();
@@ -17,28 +14,51 @@ export default function TransactionDetailPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      setError("");
+    let cancelled = false;
+    let intervalId;
 
+    async function fetchAndUpdate() {
       try {
-        const [transactionData, anomalyData, explanationData] = await Promise.all([
-          fetchTransactionById(transactionId),
-          fetchAnomalyResultById(transactionId),
-          fetchExplanations(transactionId),
-        ]);
+        const data = await fetchTransactionFullView(transactionId);
 
-        setTransaction(transactionData);
-        setAnomalyResults(anomalyData);
-        setExplanations(explanationData);
+        if (cancelled) return;
+
+        setTransaction(data.transaction);
+        setAnomalyResults(data.anomalyResults || []);
+        setExplanations(data.explanations || []);
+        setError("");
+        setLoading(false);
+
+        const anomalyReady = (data.anomalyResults || []).length > 0;
+        const explanationReady = (data.explanations || []).length > 0;
+
+        if (anomalyReady && explanationReady && intervalId) {
+          clearInterval(intervalId);
+        }
       } catch (err) {
-        setError(err.message);
-      } finally {
+        if (cancelled) return;
+        setError("Transaction is still being processed. Please wait...");
         setLoading(false);
       }
     }
 
-    loadData();
+    async function init() {
+      setLoading(true);
+      setError("");
+
+      await fetchAndUpdate();
+
+      intervalId = setInterval(async () => {
+        await fetchAndUpdate();
+      }, 1000);
+    }
+
+    init();
+
+    return () => {
+      cancelled = true;
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [transactionId]);
 
   return (
@@ -50,6 +70,14 @@ export default function TransactionDetailPage() {
 
       {loading && <p>Loading...</p>}
       {error && <p className="error">{error}</p>}
+
+      {!loading && !error && (
+        <ProcessingTimeline
+          transactionReady={!!transaction}
+          anomalyReady={anomalyResults.length > 0}
+          explanationReady={explanations.length > 0}
+        />
+      )}
 
       {!loading && !error && transaction && (
         <>
@@ -72,7 +100,7 @@ export default function TransactionDetailPage() {
           <section className="detail-card">
             <h2>Anomaly Result</h2>
             {anomalyResults.length === 0 ? (
-              <p>No anomaly result found.</p>
+              <p>Processing anomaly result...</p>
             ) : (
               anomalyResults.map((result) => (
                 <div key={result.id} className="detail-grid">
@@ -91,7 +119,7 @@ export default function TransactionDetailPage() {
           <section className="detail-card">
             <h2>Explanation</h2>
             {explanations.length === 0 ? (
-              <p>No explanation found.</p>
+              <p>Generating explanation...</p>
             ) : (
               explanations.map((exp) => (
                 <div key={exp.id} className="explanation-block">

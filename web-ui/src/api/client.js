@@ -33,3 +33,22 @@ export async function fetchExplanations(transactionId = "") {
   if (!res.ok) throw new Error("Failed to fetch explanations");
   return res.json();
 }
+
+export async function fetchTransactionFullView(transactionId) {
+  const res = await fetch(`${API_BASE}/transactions/${transactionId}/full-view`);
+  if (!res.ok) throw new Error("Failed to fetch full transaction view");
+  return res.json();
+}
+
+export async function publishTransaction(payload) {
+  const res = await fetch(`${API_BASE}/transactions/publish`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) throw new Error("Failed to publish transaction");
+  return res.text();
+}

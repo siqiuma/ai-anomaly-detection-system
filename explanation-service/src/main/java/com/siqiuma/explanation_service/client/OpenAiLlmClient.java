@@ -70,7 +70,7 @@ public class OpenAiLlmClient implements LlmClient {
                     .timeout(Duration.ofMillis(config.getTimeoutMs()))
                     .block();
 
-            return extractContent(response);
+            return extractContent(response, matchedRules);
 
         } catch (Exception e) {
             System.err.println("LLM generation failed: " + e.getMessage());
@@ -114,7 +114,7 @@ public class OpenAiLlmClient implements LlmClient {
         return sb.toString();
     }
 
-    private String extractContent(String json) throws Exception {
+    private String extractContent(String json, List<String> matchedRules) throws Exception {
         JsonNode root = objectMapper.readTree(json);
         String content = root.path("choices")
                 .get(0)
@@ -128,20 +128,24 @@ public class OpenAiLlmClient implements LlmClient {
             StringBuilder formatted = new StringBuilder();
             formatted.append(response.getRisk_summary()).append("\n");
 
-            for (String reason : response.getReasons()) {
-                formatted.append("- ").append(reason).append("\n");
+            if (response.getReasons() != null) {
+                for (String reason : response.getReasons()) {
+                    formatted.append("- ").append(reason).append("\n");
+                }
             }
 
-            return sanitize(formatted.toString());
+            return sanitize(formatted.toString(), matchedRules);
 
         } catch (Exception e) {
             // fallback if AI didn't return valid JSON
-            return content;
+            return sanitize(content, matchedRules);
         }
     }
 
-    private String sanitize(String text) {
-        if (text == null) return "";
+    private String sanitize(String text, List<String> matchedRules) {
+        if (text == null || text.isBlank()) {
+            return buildConstrainedExplanation(matchedRules);
+        }
 
         String lower = text.toLowerCase();
 
@@ -150,9 +154,7 @@ public class OpenAiLlmClient implements LlmClient {
                 lower.contains("compliance") ||
                 lower.contains("regulatory")) {
 
-            return "Explanation constrained: based on triggered rules only.\n" +
-                    "- The transaction amount exceeds threshold.\n" +
-                    "- The transaction involves a high-risk country.";
+            return buildConstrainedExplanation(matchedRules);
         }
 
         return text;
@@ -161,5 +163,31 @@ public class OpenAiLlmClient implements LlmClient {
     @Override
     public String getModelName() {
         return config.getModel();
+    }
+
+    private String buildConstrainedExplanation(List<String> matchedRules) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Explanation constrained: based on triggered rules only.\n");
+
+        if (matchedRules == null || matchedRules.isEmpty()) {
+            sb.append("- No suspicious patterns detected.\n");
+            return sb.toString();
+        }
+
+        for (String rule : matchedRules) {
+            switch (rule) {
+                case "LARGE_AMOUNT":
+                    sb.append("- The transaction amount exceeds threshold.\n");
+                    break;
+                case "SUSPICIOUS_COUNTRY":
+                    sb.append("- The transaction involves a high-risk country.\n");
+                    break;
+                default:
+                    sb.append("- Triggered rule: ").append(rule).append("\n");
+                    break;
+            }
+        }
+
+        return sb.toString();
     }
 }

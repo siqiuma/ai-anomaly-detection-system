@@ -176,3 +176,115 @@ body {
   font-size: 28px;
   font-weight: 700;
 }
+
+.transaction-form {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 24px;
+  max-width: 900px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(240px, 1fr));
+  gap: 16px 24px;
+  margin-bottom: 20px;
+}
+
+.form-grid label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  gap: 6px;
+}
+
+.form-grid input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-weight: 400;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.transaction-form button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  background: #1f2937;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.transaction-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.timeline {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 0;
+  overflow-x: auto;
+}
+
+.timeline-step-wrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.timeline-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.timeline-circle {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.timeline-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.timeline-line {
+  flex: 1;
+  height: 2px;
+  background: #d1d5db;
+  margin: 0 12px;
+}
+
+.timeline-step.done .timeline-circle {
+  background: #15803d;
+}
+
+.timeline-step.done .timeline-label {
+  color: #15803d;
+}
+
+.timeline-step.in-progress .timeline-circle {
+  background: #c2410c;
+}
+
+.timeline-step.in-progress .timeline-label {
+  color: #c2410c;
+}
+
+.timeline-step.pending .timeline-circle {
+  background: #9ca3af;
+}
+
+.timeline-step.pending .timeline-label {
+  color: #6b7280;
+}
