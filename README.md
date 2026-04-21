@@ -19,6 +19,63 @@ It demonstrates how to combine:
 into a **production-style end-to-end system**.
 
 * * * * *
+🎥 Demo
+-----------
+
+![demo-high](docs/images/demo-flow-high-risk.gif)
+
+
+👉 Flow:
+
+- Create a new transaction
+- System processes asynchronously
+- Anomaly result + AI explanation appear automatically
+
+📊 Dashboard Overview
+-----------
+
+![Dashboard](docs/images/dashboard.png)
+
+
+- Transactions table with risk visualization
+- Color-coded risk badges (HIGH / MEDIUM / LOW)
+- Summary cards showing system-wide metrics
+
+🔍 Transaction Detail (End-to-End View)
+-----------
+
+![Transaction](docs/images/txn-detail.png)
+
+
+Each transaction includes:
+
+- Raw transaction data
+- Anomaly score & matched rules
+- AI-generated explanation
+
+⏳ Processing Timeline (Async System Visualization)
+-----------
+
+![Timeline](docs/images/timeline-processing.png)
+
+
+Shows real-time system state:
+
+- Transaction ingested
+- Anomaly evaluated
+- Explanation generated
+
+👉 Demonstrates eventual consistency and async processing.
+
+➕ New Transaction (Interactive Demo)
+-----------
+
+![demo-low](docs/images/demo-flow-low-risk.gif)
+
+
+- Submit transactions directly from UI
+- Triggers full pipeline:
+- API → Kafka → Detection → AI → UI
 
 🧠 Key Features
 ---------------
