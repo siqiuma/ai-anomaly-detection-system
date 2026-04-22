@@ -97,58 +97,78 @@ Shows real-time system state:
 🏗️ Architecture
 ----------------
 
-```
-                 ┌──────────────┐
-                 │   Web UI     │
-                 │ (React/Vite) │
-                 └──────┬───────┘
-                        │
-                        ▼
-               ┌──────────────────┐
-               │   API Service    │
-               │ (Spring Boot)    │
-               ├──────────────────┤
-               │ - REST APIs      │
-               │ - Kafka Producer │
-               │ - Full View API  │
-               └──────┬───────────┘
-                      │
-                      ▼
-          ┌─────────────────────────┐
-          │ transaction-events (Kafka)
-          └──────────┬─────────────┘
-                     ▼
-           ┌──────────────────────┐
-           │ Detection Service     │
-           │ (Rule Engine)         │
-           ├──────────────────────┤
-           │ - Persist transaction│
-           │ - Evaluate rules     │
-           │ - Save anomaly       │
-           │ - Publish request    │
-           └──────────┬───────────┘
-                      │
-                      ▼
-       ┌────────────────────────────┐
-       │ explanation-requests (Kafka)
-       └──────────┬─────────────────┘
-                  ▼
-         ┌────────────────────────┐
-         │ Explanation Service     │
-         │ (LLM + Guardrails)      │
-         ├────────────────────────┤
-         │ - Call OpenAI           │
-         │ - Validate output       │
-         │ - Apply fallback logic  │
-         │ - Persist explanation   │
-         └──────────┬─────────────┘
-                    ▼
-             ┌──────────────┐
-             │ PostgreSQL   │
-             └──────────────┘
+![architecture](docs/ai-anomaly-detection-architecture1.png)
+
+🧠 System Design Highlights
+---------------------------
+
+### 1\. Clear Separation of Write vs Read Paths
+
+#### Write Path (Asynchronous)
 
 ```
+Web UI → API → Kafka → Detection → Kafka → Explanation → Database
+```
 
+-   fully decoupled via Kafka
+-   no blocking on downstream processing
+-   enables scalability and resilience
+
+* * * * *
+
+#### Read Path (Synchronous / Aggregated)
+
+```
+Web UI → API → Full-View Aggregation → Database
+```
+
+-   optimized for UI consumption
+-   reduces multiple round trips
+-   encapsulates backend complexity
+
+* * * * *
+
+### 2\. Deterministic vs AI-Based Reasoning
+
+| Layer | Responsibility |
+| Detection Service | Deterministic rule engine |
+| Explanation Service | AI-based explanation generation |
+
+This separation ensures:
+
+-   **correctness comes from rules**
+-   **AI enhances interpretability, not decision-making**
+
+* * * * *
+
+### 3\. Event-Driven Processing
+
+Kafka topics:
+
+-   `transaction-events`
+-   `explanation-requests`
+
+Benefits:
+
+-   loose coupling between services
+-   independent scaling
+-   resilience to downstream delays
+
+* * * * *
+
+### 4\. Eventual Consistency (Handled in UI)
+
+The system embraces async processing:
+
+-   transaction → immediate
+-   anomaly result → slight delay
+-   explanation → longer delay
+
+Frontend handles this via:
+
+-   polling
+-   progressive rendering
+-   processing timeline
 * * * * *
 
 🔄 Data Flow
